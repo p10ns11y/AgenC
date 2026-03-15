@@ -14,10 +14,9 @@ interface CliCapture {
 }
 
 function withCwd<T>(next: string, callback: () => Promise<T>): Promise<T> {
-  const previous = process.cwd();
-  process.chdir(next);
+  const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(next);
   return callback().finally(() => {
-    process.chdir(previous);
+    cwdSpy.mockRestore();
   });
 }
 

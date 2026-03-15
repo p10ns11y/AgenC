@@ -8,12 +8,17 @@
   "scripts": {
     "build": "tsc",
     "start": "tsx src/cli.ts",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:fast": "vitest run tests/",
+    "test:anchor": "anchor test",
+    "test:e2e-zk": "vitest run tests/e2e-real-proof.ts",
+    "test:matrix:phase01": "bash scripts/run-phase01-matrix.sh"
   },
   "dependencies": {
     "tsx": "^4.7.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   }

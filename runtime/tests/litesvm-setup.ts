@@ -298,7 +298,7 @@ export function createRuntimeTestContext(): RuntimeTestContext {
   patchSendAndConfirm();
 
   // CWD is runtime/, Anchor.toml is in parent directory
-  const svm = fromWorkspace('..');
+  const svm = fromWorkspace('.'); 
 
   // Set initial clock to a realistic timestamp
   const clock = svm.getClock();
