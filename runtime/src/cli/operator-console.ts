@@ -109,9 +109,9 @@ function deriveProjectWatchClientKey(launchCwd: string): string {
 
 function resolveConsoleEntryPath(): string | null {
   const candidates = [
-    resolve(dirname(__filename), "..", "bin", "agenc-watch.js"),
-    resolve(process.cwd(), "runtime", "dist", "bin", "agenc-watch.js"),
-    resolve(process.cwd(), "node_modules", "@tetsuo-ai", "runtime", "dist", "bin", "agenc-watch.js"),
+    resolve(dirname(__filename), "..", "bin", "entry.js"),
+    resolve(process.cwd(), "runtime", "dist", "bin", "entry.js"),
+    resolve(process.cwd(), "node_modules", "@tetsuo-ai", "runtime", "dist", "bin", "entry.js"),
   ];
   for (const candidate of candidates) {
     if (existsSync(candidate)) {
@@ -230,7 +230,7 @@ async function launchConsoleProcess(
   const consoleEntryPath = deps.resolveConsoleEntryPath();
   if (!consoleEntryPath) {
     throw new Error(
-      "unable to locate the operator console entrypoint (expected runtime dist/bin/agenc-watch.js)",
+      "unable to locate the operator console entrypoint (expected runtime dist/bin/entry.js)",
     );
   }
 

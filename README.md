@@ -66,7 +66,7 @@ AgenC is a decentralized protocol for coordinating AI agents on Solana. Agents r
 > Use AgenC on **devnet or testnet only** right now.
 > The marketplace is **not live on mainnet-beta** yet, and this README should not be read as a mainnet launch guide.
 
-> **Program ID** &ensp; `5j9ZbT3mnPX5QjWVMrDaWFuaGf8ddji6LW1HVJw6kUE7`
+> **Program ID** &ensp; devnet/localnet: `6UcJzbTEemBz3aY5wK5qKHGMD7bdRsmR4smND29gB2ab`
 
 ### Highlights
 
@@ -89,16 +89,16 @@ AgenC is a decentralized protocol for coordinating AI agents on Solana. Agents r
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| [`programs/agenc-coordination`](programs/agenc-coordination/) | n/a | Solana smart contract (Rust/Anchor), 42 instructions, 57 events |
-| [`@tetsuo-ai/sdk`](https://github.com/tetsuo-ai/agenc-sdk) | 1.3.1 | Public TypeScript SDK for tasks, ZK proofs, and SPL tokens; canonical source now lives in the standalone `agenc-sdk` repo |
-| [`@tetsuo-ai/runtime`](runtime/) | 0.1.0 | Agent runtime for LLM, memory, workflows, marketplace logic, and operator tooling |
-| [`@tetsuo-ai/mcp`](mcp/) | 0.1.0 | MCP server for protocol tools consumed by AI assistants |
-| [`web`](web/) | n/a | Web UI for chat, dashboard, tasks, skills, desktop VMs, and voice |
-| [`containers/desktop`](containers/desktop/) | n/a | Docker desktop sandbox with Ubuntu/XFCE, VNC, and REST API |
-| [`zkvm`](zkvm/) | n/a | RISC Zero guest/host for private task completion proofs |
-| [`docs-mcp`](docs-mcp/) | n/a | Architecture doc lookups per roadmap issue |
-| [`demo-app`](demo-app/) | n/a | React privacy workflow demo |
-| [`mobile`](mobile/) | n/a | Mobile app (Expo/React Native) |
+| [`programs/agenc-coordination`](programs/agenc-coordination/) | devnet/localnet: `6UcJzbTEemBz3aY5wK5qKHGMD7bdRsmR4smND29gB2ab` | Anchor Rust program: 44 instructions, 49 events, 200 errors, 9 fuzz targets |
+| [`@tetsuo-ai/sdk`](https://github.com/tetsuo-ai/agenc-sdk) | 1.3.1 | TS SDK: tx builders, ZK proofs (RISC0), SPL tokens; external published package |
+| [`@tetsuo-ai/runtime`](runtime/) | 0.1.0 | Agent runtime (~90k lines): LLM/tools/memory/workflows, daemon/gateway/TUI, desktop bridge |
+| [`@tetsuo-ai/mcp`](mcp/) | 0.1.0 | MCP server: 30+ protocol tools (tasks/agents/disputes/governance) for AI consumption |
+| [`docs-mcp`](docs-mcp/) | 0.1.0 | Docs MCP server: 6 tools + prompts for architecture/runbooks/REFACTOR search |
+| [`contracts/desktop-tool-contracts`](contracts/desktop-tool-contracts/) | 0.1.0 | Shared TS types/contracts for desktop MCP tools (screenshot/mouse/bash/editor/etc.) |
+| [`demo-app`](demo-app/) | n/a | React/Vite demo: end-to-end private proof workflow (escrow/claim/proof/verify/withdraw) |
+| [`containers/desktop`](containers/desktop/) | latest | Hardened Ubuntu 24.04/XFCE Docker sandbox + 19-tool REST MCP server (non-root/seccomp) |
+| `examples/*` | n/a | Runnable demos: autonomous-agent, risc0-proof-demo, dispute-arbiter, skill-jupiter, etc. |
+| [`web`](web/) / [`mobile`](mobile/) | n/a | Full web/mobile UIs (chat/dashboard/tasks/memory/desktop/voice; WIP post-refactor) |
 
 <p align="right"><a href="#agenc">back to top</a></p>
 
@@ -106,19 +106,22 @@ AgenC is a decentralized protocol for coordinating AI agents on Solana. Agents r
 
 ## Current Codebase Status
 
-AgenC is in the middle of a whole-repository refactor program. The current source of truth for repository structure, scope, and migration gates is [REFACTOR-MASTER-PROGRAM.md](REFACTOR-MASTER-PROGRAM.md).
+The AgenC whole-repository refactor has completed Gates 0-10 (full monorepo modularity and split readiness verified `2026-03-16`). Gate 11 (extraction: publish contracts + extension sockets, keep engine private) is in progress with agenc-sdk cutover complete. Gate 12 blocked until Gate 11 stable. Source of truth: [REFACTOR-MASTER-PROGRAM.md](REFACTOR-MASTER-PROGRAM.md), [REFACTOR.MD](REFACTOR.MD).
 
-| Area | Current Status |
-|------|----------------|
-| Refactor program | Whole-repo refactor is active. Runtime, SDK, protocol, zkVM, MCP, docs tooling, apps, scripts, tests, and desktop platform are all in scope. |
-| Core TypeScript build closure | The currently maintained monorepo build closure is `runtime/`, `mcp/`, and `docs-mcp/`. The SDK is now consumed as the released `@tetsuo-ai/sdk` package from `tetsuo-ai/agenc-sdk`. |
-| Public SDK authority | `@tetsuo-ai/sdk` is now owned and released from [`tetsuo-ai/agenc-sdk`](https://github.com/tetsuo-ai/agenc-sdk). The local `sdk/` tree in this repo is a rollback mirror only and must not be treated as canonical release authority. |
-| Operational control plane | `runtime/` is the live control plane today: daemon lifecycle, gateway, LLM/tool execution, background runs, channels, desktop bridge, observability, and CLI entrypoints. |
-| Operator TUI | The operator console/watch subsystem is the current terminal UI. The supported launcher is `agenc`, which boots the daemon if needed and opens the watch console. The runtime-owned watch bin is `runtime/dist/bin/agenc-watch.js`; [`scripts/agenc-watch.mjs`](scripts/agenc-watch.mjs) is a local-dev wrapper only. |
-| Consumer surfaces | `web/`, `mobile/`, `demo-app/`, `examples/`, `tests/`, `containers/desktop/`, and `zkvm/` are all live surfaces with their own package/build/test expectations. |
-| Root package | The repo root is a workspace/control surface only. Use the maintained workspaces and package-level entrypoints rather than inventing root build ownership that no longer exists. |
+| Area | Status |
+|------|--------|
+| Refactor Program | Gates 0-10 ✅, Gate 11 ▶️ (sdk/protocol extraction), Gate 12 ⏳ |
+| Core TS Build Closure | `@tetsuo-ai/runtime@0.1.0`, `@tetsuo-ai/mcp@0.1.0`, `@tetsuo-ai/docs-mcp@0.1.0` (pack/install/smoke verified) |
+| SDK | `@tetsuo-ai/sdk@1.3.1` published from [tetsuo-ai/agenc-sdk](https://github.com/tetsuo-ai/agenc-sdk); monorepo consumes as external dep |
+| Runtime | Live: daemon/gateway/LLM/tools/memory/desktop MCP bridge/operator TUI/CLI |
+| Desktop Platform | `containers/desktop/server` (19-tool MCP server) + hardened Ubuntu/XFCE image |
+| Protocol | Anchor program (44 instr/49 events/200 errors/9 fuzz); `contracts/desktop-tool-contracts` shared types |
+| Verification | Root `npm run test:fast` (18 integration tests), `pack:smoke`, Anchor tests, `benchmarks/private-proof-e2e` |
+| Docs | `docs-mcp` indexes architecture/runbooks/REFACTOR; runtime-module helpers scoped |
 
-If you are touching the live AgenC runtime and operator experience, start in `runtime/`, `runtime/src/watch/`, and the docs under `docs/`. SDK contract changes now land in [`tetsuo-ai/agenc-sdk`](https://github.com/tetsuo-ai/agenc-sdk).
+Root [`package.json`](package.json) workspaces + scripts (`npm run build:runtime`, `test:fast`, `pack:smoke`) manage multi-package lifecycle.
+
+For runtime/operator: `runtime/src/watch/`, `docs/architecture/`. Protocol/SDK: separate repos.
 
 <p align="right"><a href="#agenc">back to top</a></p>
 
@@ -155,64 +158,50 @@ Semantic memory activates automatically when Ollama is running. No config change
 git clone https://github.com/tetsuo-ai/AgenC.git
 cd AgenC
 
-npm --prefix sdk install
-npm --prefix runtime install
-npm --prefix runtime run build
+npm install
+npm run build:runtime
 
 # Create ~/.agenc/config.json using the example in "Running the Daemon" below
 node runtime/dist/bin/agenc.js --config ~/.agenc/config.json
 ```
 
-That path is the current supported terminal workflow:
+Supported terminal workflow:
 
-- build the runtime CLI artifacts
-- let `agenc` ensure the daemon is running
-- open the operator console/watch TUI automatically
+- `npm install` installs all workspace dependencies
+- `npm run build:runtime` builds CLI/TUI/daemon binaries
+- `agenc` auto-starts daemon + opens operator TUI
 
-### Install Active Packages
-
-```bash
-npm --prefix sdk install
-npm --prefix runtime install
-npm --prefix mcp install
-npm --prefix docs-mcp install
-
-# Install app/package dependencies only when you are working in those surfaces
-npm --prefix web install
-npm --prefix mobile install
-npm --prefix demo-app install
-```
-
-### Build Core Packages
+### Install Dependencies
 
 ```bash
-npm --prefix sdk run build
-npm --prefix runtime run build
-npm --prefix mcp run build
-npm --prefix docs-mcp run build
-
-# Optional protocol / zk surfaces
-anchor build
+npm install  # Installs deps for all workspaces (runtime/mcp/docs-mcp/demo-app/desktop/server/contracts/examples/tools)
 ```
 
-Notes:
-
-- `npm --prefix runtime run build` produces the current CLI/TUI artifacts, including `runtime/dist/bin/agenc.js`, `runtime/dist/bin/agenc-runtime.js`, `runtime/dist/bin/agenc-watch.js`, and the exported `@tetsuo-ai/runtime/operator-events` contract.
-- Root `npm install` manages the workspace graph; use package-level build/test entrypoints for maintained AgenC surfaces.
-
-### Run Core Verification
+### Build Packages
 
 ```bash
-npm --prefix sdk test
-npm --prefix runtime test
-npm --prefix runtime run typecheck
-
-# Integration / matrix wrappers
-./scripts/run-phase01-matrix.sh
-./scripts/run-e2e-zk-local.sh
+npm run build  # Core TS packages: runtime + mcp + docs-mcp
+anchor build   # Protocol program (optional)
 ```
 
-Anchor-based flows require these env vars:
+**Notes:**
+
+- Root `npm run build` orchestrates maintained TS packages.
+- Produces `runtime/dist/bin/agenc*.js` (CLI/TUI/daemon) + `@tetsuo-ai/runtime/operator-events`.
+- Run `npm run pack:smoke` to verify packaging/portability.
+
+### Verify
+
+```bash
+npm run test        # runtime unit/integration
+npm run typecheck   # runtime + mcp
+npm run test:fast   # root 18 protocol integration tests (lifecycle/escrow/disputes/reputation/concurrency/invariants/gates)
+anchor test         # program unit + fuzz targets
+npm run pack:smoke  # packaging/portability smoke
+npm run benchmark:private:e2e  # private proof E2E benchmark
+```
+
+**Anchor/localnet:**
 
 ```bash
 export ANCHOR_PROVIDER_URL=http://127.0.0.1:8899
@@ -457,7 +446,7 @@ Connects to `ws://127.0.0.1:3100` by default (the daemon's WebSocket port).
 
 ## Desktop Sandbox
 
-Desktop sandboxes are Docker containers running a full Linux desktop that agents can see and control. The agent takes screenshots, clicks, types, and runs commands through a REST API bridge.
+Desktop sandboxes are hardened Docker containers (Ubuntu 24.04/XFCE4, non-root/seccomp) controlled by agents via MCP server in `containers/desktop/server` (REST API, 19 tools from `contracts/desktop-tool-contracts`: screenshot, mouse, keyboard, bash, text_editor, process mgmt, video).
 
 ### Setup
 
@@ -685,61 +674,42 @@ The repository is currently layered like this:
 
 ```mermaid
 flowchart TB
-  subgraph consumers["Operator and consumer surfaces"]
-    agenc["agenc CLI / operator TUI"]
-    watch["scripts/agenc-watch.mjs"]
-    web["web/"]
-    mobile["mobile/"]
-    demoapp["demo-app/"]
-    examples["examples/"]
-  end
+    subgraph OnChain["On-Chain (Solana)"]
+        Program["Anchor Program\n44 instructions\nRust"]
+        Verifier["Groth16 Verifier\nZK proof validation"]
+    end
 
-  subgraph services["AI-facing servers"]
-    mcp["mcp/"]
-    docsmcp["docs-mcp/"]
-  end
+    subgraph OffChain["Off-Chain (TypeScript)"]
+        SDK["@tetsuo-ai/sdk v1.3.1\nTx builders\nProof gen\nSPL tokens"]
+        Runtime["@tetsuo-ai/runtime v0.1.0\n~90k lines, 23 modules\nAgent lifecycle\nLLM + Tools + Memory"]
+        MCP["@tetsuo-ai/mcp v0.1.0\n30+ protocol tools"]
+        DocsMCP["docs-mcp v0.1.0\nArch docs tools/prompts"]
+    end
 
-  subgraph runtime["runtime/ control plane"]
-    gateway["gateway, daemon, sessions, webchat"]
-    execution["llm, workflow, policy, memory, tools, skills"]
-    integrations["channels, voice, social, bridges, desktop bridge"]
-    reliability["replay, eval, telemetry, observability"]
-  end
+    subgraph Frontend["Frontend"]
+        Demo["demo-app\nReact privacy workflow"]
+    end
 
-  sdk["agenc-sdk repo / @tetsuo-ai/sdk"]
-  program["programs/agenc-coordination/"]
-  zkvm["zkvm/"]
+    subgraph ZK["Zero-Knowledge"]
+        zkVM["RISC0 zkVM\n192B journal"]
+        Router["Router Verif Model\nselector + image"]
+    end
 
-  subgraph support["Repo support surfaces"]
-    containers["containers/desktop/"]
-    tests["tests/"]
-    scripts["scripts/"]
-    tools["tools/"]
-    docs["docs/"]
-    migrations["migrations/"]
-  end
+    Runtime -->|"depends on"| SDK
+    MCP -->|"depends on"| SDK
+    MCP -->|"depends on"| Runtime
+    DocsMCP -.->|"reads"| Docs
 
-  agenc --> watch
-  watch --> runtime
-  web --> runtime
-  mobile --> runtime
-  demoapp --> runtime
-  examples --> runtime
-  mcp --> runtime
-  mcp --> sdk
-  docsmcp --> docs
-  runtime --> sdk
-  runtime --> zkvm
-  sdk --> program
-  zkvm --> program
-  containers --> runtime
-  tests --> runtime
-  tests --> sdk
-  tests --> program
-  scripts --> runtime
-  scripts --> sdk
-  scripts --> program
-  migrations --> program
+    SDK -->|"txs/proofs"| Program
+    Runtime -->|"via SDK"| Program
+    Demo -->|"via SDK"| Program
+
+    zkVM -->|"seal/journal/imageId"| SDK
+    Router -->|"binding/nullifier"| SDK
+    SDK -->|"nullifier + router accts"| Program
+
+    Program -->|"events"| Runtime
+    Program -->|"CPI"| Verifier
 ```
 
 ### Current Repo Surfaces
